@@ -95,7 +95,7 @@ public class IAMOps implements Runnable {
 
 
             // Just to compare
-            getServiceLastAccessedDetailsUsingARN(iam);
+            // getServiceLastAccessedDetailsUsingARN(iam);
 
         } catch (Exception e) {
             log.error("", e);
