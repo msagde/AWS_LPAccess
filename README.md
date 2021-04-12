@@ -1,15 +1,18 @@
 # AWS_LPAccess
 
-LAPReport is main class. It creates IAMOps and runs code to pull 'LastAuthenticatedTime' (AccesTime) for configured mgmt acc.
+This application just dumps the AWS service acces infomation for an org to console.
 
-If running from command line pass "mgmt account org id" .
+Build - If you have java 8 and gradle 4.3+, just do 'gradle build -x test' 
+
+Run : LAPReport is main class. It creates IAMOps and runs code to pull 'LastAuthenticatedTime' (AccesTime) for configured mgmt acc.
+
+If running from command line pass "mgmt account org id" of your AWS account.
 
 Ex: java -jar <path>/AWS_LPAccess-all.jar o-ziepcz5dc6
 
-This application just dumps the acces infomation to console which will look like this
+Acces infomation logged to console which will look like this
 
-
-MAHBASAV-M-XGEC:AWS_LPAccess mahbasav$ java -jar ./build/libs/AWS_LPAccess-all.jar o-ziepcz5dc6 r-zph
+XGEC:AWS_LPAccess mahbasav$ java -jar ./build/libs/AWS_LPAccess-all.jar o-ziepcz5dc6 r-zph
 #logback.classic pattern: Timestamp=%d LogLevel=%-5level ServiceName=AWS_LPA ThreadId=[%thread] Class=%logger{1} %msg%n
 Timestamp=2021-04-12 12:04:18,610 LogLevel=INFO  ServiceName=AWS_LPA ThreadId=[main] Class=c.e.a.IAMOps
 Timestamp=2021-04-12 12:04:18,611 LogLevel=INFO  ServiceName=AWS_LPA ThreadId=[main] Class=c.e.a.IAMOps Pulling service access data for last 90 days for Org: o-ziepcz5dc6/r-zphj
