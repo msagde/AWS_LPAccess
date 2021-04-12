@@ -1,7 +1,7 @@
 <configuration scan="true" scanPeriod="30 seconds">
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>Timestamp=%d LogLevel=%-5level ServiceName=fli-sql-app ThreadId=[%thread] Class=%logger{1} %msg%n</pattern>
+			<pattern>Timestamp=%d LogLevel=%-5level ServiceName=AWS_LPA ThreadId=[%thread] Class=%logger{1} %msg%n</pattern>
 			<outputPatternAsHeader>true</outputPatternAsHeader>
 		</encoder>
 	</appender>

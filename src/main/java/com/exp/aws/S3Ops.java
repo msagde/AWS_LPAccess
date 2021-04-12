@@ -1,9 +1,6 @@
 package com.exp.aws;
 
-import org.apache.flink.table.util.Logging;
-
 import java.io.IOException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -17,7 +14,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.S3Client;
 
-
 public class S3Ops {
 
         private static final Logger log = LoggerFactory.getLogger(S3Ops.class);
@@ -25,12 +21,10 @@ public class S3Ops {
 
         public static void main(String[] args) throws IOException {
 
-            log.info("mahesh ");
-
             Region region = Region.US_WEST_2;
             S3Client s3 = S3Client.builder().region(region).build();
 
-            String bucket = "bucket-created-from-code";//""bucket" + System.currentTimeMillis();
+            String bucket = "bucket-created-from-code";
             String key = "one";
 
             tutorialSetup(s3, bucket, region);
