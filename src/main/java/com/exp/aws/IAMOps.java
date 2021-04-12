@@ -28,10 +28,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class IAMOps {
     private static final Logger log = LoggerFactory.getLogger(IAMOps.class);
 
-    private static String ROOT_ID  =  "r-zphj";
     private static String MGMT_ACC_ID = "o-ziepcz5dc6";
 
-    public void getOrgAcceesInfo() {
+    public void getOrgAcceesInfo(String mgmtAccPath) {
+
+        if (mgmtAccPath != null) {
+            MGMT_ACC_ID = mgmtAccPath;
+        }
 
         Region region = Region.AWS_GLOBAL;
         IamClient iam = IamClient.builder()
@@ -41,28 +44,33 @@ public class IAMOps {
         OrganizationsClient oc = OrganizationsClient.builder().region(region).build();
 
         try {
-            ListAccountsResponse accounts = oc.listAccounts();
             ListRootsResponse listRootResp = oc.listRoots();
 
             log.info("");
-            log.info("Processing Org: {}\n", MGMT_ACC_ID + "/" + ROOT_ID);
+            log.info("Pulling service access data for last 90 days for Org: {}\n", MGMT_ACC_ID + "/" + listRootResp.roots().get(0).id()); // Assuming there is only one root
 
             listRootResp.roots().forEach(root -> {
                 String baseEntity = MGMT_ACC_ID + "/" + root.id();
+
+                // Iterate over OrgUnits
                 ListChildrenRequest lcReq = ListChildrenRequest.builder().parentId(root.id()).childType(ChildType.ORGANIZATIONAL_UNIT).build();
                 ListChildrenResponse lcResp =  oc.listChildren(lcReq);
 
-                // Iterate over OrgUnits
                 for (Child ou : lcResp.children()) {
                     String entity = baseEntity + "/" + ou.id();
                     log.info("Processing OrgUnit with entity: {}", entity);
                     getLastAccessInfo(iam, entity);
                 }
 
-                lcReq = ListChildrenRequest.builder().parentId(ROOT_ID).childType(ChildType.ACCOUNT).build();
-                lcResp =  oc.listChildren(lcReq);
+                try {
+                    lcResp = oc.listChildren(lcReq);
+                } catch (Exception e) {
+                    log.error("Exception on listChildren for given org. Cause: {}", e.getLocalizedMessage());
+                    return;
+                }
 
                 // Iterate over Accounts
+                lcReq = ListChildrenRequest.builder().parentId(root.id()).childType(ChildType.ACCOUNT).build();
                 for (Child acc : lcResp.children()) {
                     String entity = baseEntity + "/" + acc.id();
                     log.info("Processing Account with entity: {}", entity);
@@ -71,7 +79,7 @@ public class IAMOps {
             });
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("", e);
         }
     }
 
@@ -84,7 +92,7 @@ public class IAMOps {
         try {
             generateResp = iam.generateOrganizationsAccessReport(generateOrganizationsAccessReportRequest);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception on generateOrganizationsAccessReport. Cause: {}", e.getLocalizedMessage());
             return;
         }
 
