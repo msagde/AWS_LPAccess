@@ -18,9 +18,9 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.S3Client;
 
 
-public class AWSOps {
+public class S3Ops {
 
-        private static final Logger log = LoggerFactory.getLogger(AWSOps.class);
+        private static final Logger log = LoggerFactory.getLogger(S3Ops.class);
 
 
         public static void main(String[] args) throws IOException {
