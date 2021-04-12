@@ -25,10 +25,24 @@ import software.amazon.awssdk.services.organizations.model.ListRootsResponse;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class IAMOps {
+public class IAMOps implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(IAMOps.class);
 
     private static String MGMT_ACC_ID = "o-ziepcz5dc6";
+    private int runCount = 0;
+
+    public IAMOps(String mgmtAccPath) {
+        this.MGMT_ACC_ID = mgmtAccPath;
+    }
+
+    public IAMOps() {}
+
+    @Override
+    public void run() {
+        log.info("");
+        log.info(">>>>>>>>>>>>>>>>>>   Runing iteration no: {}", runCount++);
+        getOrgAcceesInfo( this.MGMT_ACC_ID);
+    }
 
     public void getOrgAcceesInfo(String mgmtAccPath) {
 
@@ -62,6 +76,8 @@ public class IAMOps {
                     getLastAccessInfo(iam, entity);
                 }
 
+                // Iterate over Accounts
+                lcReq = ListChildrenRequest.builder().parentId(root.id()).childType(ChildType.ACCOUNT).build();
                 try {
                     lcResp = oc.listChildren(lcReq);
                 } catch (Exception e) {
@@ -69,8 +85,7 @@ public class IAMOps {
                     return;
                 }
 
-                // Iterate over Accounts
-                lcReq = ListChildrenRequest.builder().parentId(root.id()).childType(ChildType.ACCOUNT).build();
+
                 for (Child acc : lcResp.children()) {
                     String entity = baseEntity + "/" + acc.id();
                     log.info("Processing Account with entity: {}", entity);
@@ -78,9 +93,14 @@ public class IAMOps {
                 }
             });
 
+
+            // Just to compare
+            getServiceLastAccessedDetailsUsingARN(iam);
+
         } catch (Exception e) {
             log.error("", e);
         }
+
     }
 
     public void getLastAccessInfo(IamClient iam, String entity) {
@@ -126,6 +146,7 @@ public class IAMOps {
     public void getServiceLastAccessedDetailsUsingARN(IamClient iamClient) {
 
         String arn = "arn:aws:iam::408777338031:user/mahesh";
+
         GenerateServiceLastAccessedDetailsRequest getSAFReq = GenerateServiceLastAccessedDetailsRequest.builder().arn(arn).granularity(AccessAdvisorUsageGranularityType.ACTION_LEVEL).build();
 
         GenerateServiceLastAccessedDetailsResponse getSAFResp = iamClient.generateServiceLastAccessedDetails(getSAFReq);
@@ -136,9 +157,15 @@ public class IAMOps {
         while(sadResp.jobStatus().equals(JobStatusType.IN_PROGRESS)) {
             sadResp = iamClient.getServiceLastAccessedDetails(sadReq);
         }
+        log.info("");
+        log.info(">>> getServiceLastAccessedDetailsUsingARN: ARN  {}", arn);
+        sadResp.servicesLastAccessed().forEach(accessDetails -> {
+            if(accessDetails.totalAuthenticatedEntities() > 0)
+                log.info("AccessedDetails  {}\n", accessDetails.toString());
+        });
 
-        log.info("ARN  {}", arn);
-        log.info("AccessedDetails  {}\n", sadResp.toString());
     }
+
+
 }
 
